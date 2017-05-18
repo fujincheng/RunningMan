@@ -11,11 +11,16 @@
 #include "texture.h"
 #include "camera.h"
 
-
+enum playerPosition {left, right};
+playerPosition position = playerPosition::left;
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 const GLuint WIDTH = 500, HEIGHT = 500;
 bool keys[1024];
 Camera camera;
+
+void cameraGo() {
+	camera.moveForward(Camera::cameraSpeed);
+}
 
 const double vertexs[9][3] = {
 	{ 0, 0, 0 },
@@ -85,6 +90,10 @@ void do_movement()
 		camera.moveForward(Camera::cameraSpeed);
 	if (keys[GLFW_KEY_E])
 		camera.moveBackward(Camera::cameraSpeed);
+	if (keys[GLFW_KEY_J])
+		position = playerPosition::left;
+	if (keys[GLFW_KEY_K])
+		position = playerPosition::right;
 }
 
 void drawGun(Model gun) {
@@ -100,18 +109,17 @@ void drawGun(Model gun) {
 void drawRoad(GLuint texture) {	
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glPushMatrix();
-	glMultMatrixf(camera.getMat());
-	glTranslatef(0.0f, 0.0f, -3.0f);
-	//glRotatef(45, 1, 0, 0);
+	glTranslatef(0.0f, -1.0f, 0.0f);
+	glRotatef(90, 1, 0, 0);
 	glBegin(GL_QUADS);
 	glTexCoord2d(0.0, 0.0);
-	glVertex2d(-0.5, -0.5);
+	glVertex2d(-7, -10);
 	glTexCoord2d(1.0, 0.0);
-	glVertex2d(+0.5, -0.5);
+	glVertex2d(+7, -10);
 	glTexCoord2d(1.0, 1.0);
-	glVertex2d(+0.5, +0.5);
+	glVertex2d(+7, +10);
 	glTexCoord2d(0.0, 1.0);
-	glVertex2d(-0.5, +0.5);
+	glVertex2d(-7, +10);
 	glEnd();
 	glPopMatrix();
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -142,15 +150,14 @@ int main()
 
 	
 	//glEnable(GL_LIGHTING);
-	GLfloat ambient[] = { 1.0, 1.0, 1.0, 1.0 };
-	GLfloat diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
-	GLfloat position[] = { 0.0, 1.0, 0.0, 0.0 };
-	GLfloat specular[] = { 1.0, 1.0, 1.0, 1.0 };
-	glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
-	glLightfv(GL_LIGHT0, GL_POSITION, position);
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
+	GLfloat lightAmbient[] = { 1.0, 1.0, 1.0, 1.0 };
+	GLfloat lightDiffuse[] = { 1.0, 1.0, 1.0, 1.0 };
+	GLfloat lightPosition[] = { 0.0, 1.0, 0.0, 0.0 };
+	GLfloat lightSpecular[] = { 1.0, 1.0, 1.0, 1.0 };
+	glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, lightSpecular);
+	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
 	glEnable(GL_LIGHT0);
 	glEnable(GL_DEPTH_TEST);
 	glShadeModel(GL_SMOOTH);
@@ -161,8 +168,10 @@ int main()
 	Texture road("imgs/road.jpg");
 	Model gun("models/rifle.obj");
 	
-	glFrustum(-5, 5, -5, 5, 0.5, 20.5);
-	camera.moveUp(3.0f);
+	glFrustum(-3, 3, -5, 5, 0.5, 20.5);
+	camera.moveUp(5.0f);
+	camera.moveBackward(1.0f);
+	
 	while (!glfwWindowShouldClose(window))
 	{	
 		do_movement();
@@ -172,25 +181,34 @@ int main()
 		
 		// drawGun(gun);
 		
-		//drawRoad(road.texture);
+		
 
 		glPushMatrix();
 		
+		cameraGo();
+
+		if (position == playerPosition::left) {
+			camera.moveXTo(-3.5f);
+		} else {
+			camera.moveXTo(3.5f);
+		}
 		glMultMatrixf(camera.getMat());
 
+		drawRoad(road.texture);
+
 		glPushMatrix();
-		glTranslatef(-8, 0, -2);
+		glTranslatef(-8, 0, 0);
 		for (int i = 0; i < 5; ++i) {
 			drawACube();
-			glTranslatef(0, 0, -4);
+			glTranslatef(0, 0, -3);
 		}
 		glPopMatrix();
 
 		glPushMatrix();
-		glTranslatef(8, 0, -2);
+		glTranslatef(8, 0, 0);
 		for (int i = 0; i < 5; ++i) {
 			drawACube();
-			glTranslatef(0, 0, -4);
+			glTranslatef(0, 0, -3);
 		}
 		glPopMatrix();
 

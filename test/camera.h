@@ -33,6 +33,9 @@ public:
 	void moveBackward(GLfloat distance) {
 		cameraPos -= distance * cameraFront;
 	}
+	void moveXTo(GLfloat x) {
+		cameraPos -= cameraPos - glm::vec3(x, cameraPos.y, cameraPos.z);
+	}
 	const float* getMat() {
 		return glm::value_ptr(glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp));
 	}

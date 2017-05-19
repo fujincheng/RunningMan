@@ -22,10 +22,10 @@ public:
 		cameraPos -= distance * cameraUp;
 	}
 	void moveLeft(GLfloat distance) {
-		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * distance;
+		cameraPos += distance * cameraLeft;
 	}
 	void moveRight(GLfloat distance) {
-		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * distance;
+		cameraPos -= distance * cameraLeft;
 	}
 	void moveForward(GLfloat distance) {
 		cameraPos += distance * cameraFront;
@@ -34,7 +34,7 @@ public:
 		cameraPos -= distance * cameraFront;
 	}
 	void moveXTo(GLfloat x) {
-		cameraPos -= cameraPos - glm::vec3(x, cameraPos.y, cameraPos.z);
+		cameraPos = glm::vec3(x, cameraPos.y, cameraPos.z);
 	}
 	const float* getMat() {
 		return glm::value_ptr(glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp));
@@ -43,10 +43,12 @@ private:
 	glm::vec3 cameraPos;
 	static const glm::vec3 cameraFront;
 	static const glm::vec3 cameraUp;
+	static const glm::vec3 cameraLeft;
 };
 
 const glm::vec3 Camera::cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 const glm::vec3 Camera::cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-const GLfloat Camera::cameraSpeed = 0.02f;
+const glm::vec3 Camera::cameraLeft = glm::vec3(-1.0f, 0.0f, 0.0f);
+const GLfloat Camera::cameraSpeed = 0.1f;
 
 #endif // !CAMERA_H

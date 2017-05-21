@@ -15,13 +15,15 @@ public:
 		this->loadModel(path);
 	}
 	~Model() {
-		aiReleaseImport(this->myScene);
+		// aiReleaseImport(this->myScene);
 	}
 	void draw() {
 		if (this->myScene)
 			this->processNode(this->myScene->mRootNode, this->myScene);
 	}
-
+	void destroy() {
+		aiReleaseImport(this->myScene);
+	}
 private:
 	const aiScene* myScene;
 	void loadModel(const char* path)	{

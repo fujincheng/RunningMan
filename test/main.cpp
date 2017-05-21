@@ -16,9 +16,11 @@ playerPosition position = playerPosition::left;
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 const GLuint WIDTH = 500, HEIGHT = 500;
 bool keys[1024];
+float playerDistance = 0.0f;
 Camera camera;
 
-void cameraGo() {
+void runrunrun() {
+	playerDistance += Camera::cameraSpeed;
 	camera.moveForward(Camera::cameraSpeed);
 }
 
@@ -102,18 +104,17 @@ void do_movement() {
 void drawRoad(GLuint texture) {	
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glPushMatrix();
-	glTranslatef(0.0f, -1.0f, 0.0f);
+	glTranslatef(0.0f, -1.0f, 1.0f);
 	glRotatef(90, 1, 0, 0);
-	glColor4f(0.0f, 0.0f, 0.0f, 0.0f);
 	glBegin(GL_QUADS);
 	glTexCoord2d(0.0, 0.0);
-	glVertex2d(-7, -10);
+	glVertex2d(-7, -20);
 	glTexCoord2d(7.0, 0.0);
-	glVertex2d(+7, -10);
-	glTexCoord2d(7.0, 10.0);
-	glVertex2d(+7, +10);
-	glTexCoord2d(0.0, 10.0);
-	glVertex2d(-7, +10);
+	glVertex2d(7, -20);
+	glTexCoord2d(7.0, 20.0);
+	glVertex2d(7, 0);
+	glTexCoord2d(0.0, 20.0);
+	glVertex2d(-7, 0);
 	glEnd();
 	glPopMatrix();
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -140,8 +141,13 @@ void drawCubes() {
 
 
 void drawModel(Model model) {
+	glEnable(GL_LIGHTING);
 	glPushMatrix();
-	glScaled(0.01f, 0.01f, 0.01f);
+	if (position == playerPosition::left) 
+		glTranslatef(-3.5f, -0.2f, 0.1f - playerDistance);
+	else
+		glTranslatef(3.5f, -0.2f, 0.1f - playerDistance);
+	glScalef(0.1f, 0.1f, 0.1f);
 	model.draw();
 	glPopMatrix();
 }
@@ -167,8 +173,6 @@ int main() {
 	glfwGetFramebufferSize(window, &width, &height);
 	glViewport(0, 0, width, height);
 
-	
-	// glEnable(GL_LIGHTING);
 	GLfloat lightAmbient[] = { 1.0, 1.0, 1.0, 1.0 };
 	GLfloat lightDiffuse[] = { 1.0, 1.0, 1.0, 1.0 };
 	GLfloat lightPosition[] = { 0.0, 1.0, 0.0, 0.0 };
@@ -185,30 +189,30 @@ int main() {
 
 	
 	Texture road("imgs/road.jpg");
-	Model gun("models/rifle.obj");
+	Model gun("models/X1.obj");
 
-	glFrustum(-3, 3, -5, 5, 0.5, 20.5);
+	gluPerspective(75, GLfloat(WIDTH) / HEIGHT, 1, 50);;
 	camera.moveUp(5.0f);
-	camera.moveBackward(1.0f);
+	camera.moveBackward(8.5f);
 	
-	while (!glfwWindowShouldClose(window))
-	{	
+	while (!glfwWindowShouldClose(window)) {	
 		do_movement();
 
 		glClearColor(0.0, 0.0, 0.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glPushMatrix();
 		
-		// cameraGo();
+		runrunrun();
 		glMultMatrixf(camera.getMat());
 		drawRoad(road.texture);
 		drawCubes();
-		// drawModel(gun);
+		drawModel(gun);
 		glPopMatrix();
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 
+	gun.destroy();
 	glfwTerminate();
 	return 0;
 }

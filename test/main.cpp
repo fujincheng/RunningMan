@@ -10,6 +10,7 @@
 #include "model.h"
 #include "texture.h"
 #include "camera.h"
+#include "skybox.h"
 
 enum playerPosition {left, right};
 playerPosition position = playerPosition::left;
@@ -18,11 +19,6 @@ const GLuint WIDTH = 500, HEIGHT = 500;
 bool keys[1024];
 float playerDistance = 0.0f;
 Camera camera;
-
-void runrunrun() {
-	playerDistance += Camera::cameraSpeed;
-	camera.moveForward(Camera::cameraSpeed);
-}
 
 const double vertexs[9][3] = {
 	{ 0, 0, 0 },
@@ -99,6 +95,10 @@ void do_movement() {
 		position = playerPosition::right;
 		camera.moveXTo(3.5f);
 	}
+	if (keys[GLFW_KEY_U])
+		playerDistance -= Camera::cameraSpeed;
+	if (keys[GLFW_KEY_I])
+		playerDistance += Camera::cameraSpeed;
 }
 
 void drawRoad(GLuint texture) {	
@@ -152,6 +152,7 @@ void drawModel(Model model) {
 	glPopMatrix();
 }
 
+
 int main() {
 
 	if (!glfwInit())
@@ -190,24 +191,27 @@ int main() {
 	
 	Texture road("imgs/road.jpg");
 	Model gun("models/X1.obj");
-
-	gluPerspective(75, GLfloat(WIDTH) / HEIGHT, 1, 50);;
+	Skybox skybox;
+	
+	gluPerspective(75, GLfloat(WIDTH) / HEIGHT, 1, 128);
 	camera.moveUp(5.0f);
+	camera.moveLeft(3.5f);
 	camera.moveBackward(8.5f);
 	
 	while (!glfwWindowShouldClose(window)) {	
 		do_movement();
-
+		
 		glClearColor(0.0, 0.0, 0.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glPushMatrix();
 		
-		runrunrun();
+		glPushMatrix();
 		glMultMatrixf(camera.getMat());
+		skybox.draw(0, 0, 0, 40, 40, 100);
 		drawRoad(road.texture);
 		drawCubes();
 		drawModel(gun);
 		glPopMatrix();
+		
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}

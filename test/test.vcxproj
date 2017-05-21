@@ -130,6 +130,7 @@
   <ItemGroup>
     <ClInclude Include="camera.h" />
     <ClInclude Include="model.h" />
+    <ClInclude Include="skybox.h" />
     <ClInclude Include="texture.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

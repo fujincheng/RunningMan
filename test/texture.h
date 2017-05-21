@@ -1,5 +1,3 @@
-#ifndef TEXTURE_H
-#define TEXTURE_H
 #pragma once
 
 #include <soil.h>
@@ -32,4 +30,3 @@ private:
 };
 
 
-#endif // TEXTURE_H

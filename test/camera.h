@@ -1,5 +1,3 @@
-#ifndef CAMERA_H
-#define CAMERA_H
 #pragma once
 
 #include <GLFW/glfw3.h>
@@ -50,5 +48,3 @@ const glm::vec3 Camera::cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 const glm::vec3 Camera::cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 const glm::vec3 Camera::cameraLeft = glm::vec3(-1.0f, 0.0f, 0.0f);
 const GLfloat Camera::cameraSpeed = 0.1f;
-
-#endif // !CAMERA_H

@@ -1,4 +1,3 @@
-#ifndef MODEL_H
 #pragma once
 
 #include <string>
@@ -84,4 +83,3 @@ private:
 };
 
 
-#endif // !MODEL_H

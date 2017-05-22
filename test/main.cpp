@@ -1,4 +1,5 @@
 #include <iostream>
+#include <Windows.h>
 
 #define GLFW_INCLUDE_GLU
 
@@ -6,6 +7,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
 
 #include "model.h"
 #include "texture.h"
@@ -19,6 +21,23 @@ const GLuint WIDTH = 500, HEIGHT = 500;
 bool keys[1024];
 float playerDistance = 0.0f;
 Camera camera;
+const int MAX_CHAR = 128;
+
+void drawString(const char* str) {
+	static bool isFirstCall = true;
+	static GLuint lists;
+
+	if (isFirstCall) {
+		isFirstCall = false;
+		lists = glGenLists(MAX_CHAR);
+		// 把每个字符的绘制命令都装到对应的显示列表中
+		wglUseFontBitmaps(wglGetCurrentDC(), 0, MAX_CHAR, lists);
+	}
+
+	int len = strlen(str);
+	for (int i = 0; i < len; ++i)
+		glCallList(lists + str[i]);
+}
 
 const double vertexs[9][3] = {
 	{ 0, 0, 0 },
@@ -121,31 +140,32 @@ void drawRoad(GLuint texture) {
 }
 
 void drawTrees(Model tree) {
+	glEnable(GL_LIGHTING);
 	glPushMatrix();
-	glTranslatef(-5, 0.8, 3);
+	glTranslatef(-5.0f, 0.8f, 3.0f);
 	for (int i = 0; i < 7; ++i) {
 		glPushMatrix();
 		glScalef(0.05, 0.05, 0.05);
 		tree.draw();
 		glPopMatrix();
-		glTranslatef(0, 0, -4);
+		glTranslatef(0, 0, -4.0f);
 	}
 	glPopMatrix();
 
 	glPushMatrix();
-	glTranslatef(8, 0.8, 3);
+	glTranslatef(8.0f, 0.8f, 3.0f);
 	for (int i = 0; i < 7; ++i) {
 		glPushMatrix();
 		glScalef(0.05, 0.05, 0.05);
 		tree.draw();
 		glPopMatrix();
-		glTranslatef(0, 0, -4);
+		glTranslatef(0, 0, -4.0f);
 	}
 	glPopMatrix();
 }
 
 
-void drawModel(Model model) {
+void drawPlayer(Model model) {
 	glEnable(GL_LIGHTING);
 	glPushMatrix();
 	if (position == playerPosition::left) 
@@ -157,6 +177,18 @@ void drawModel(Model model) {
 	glPopMatrix();
 }
 
+void displayText() {
+	glDisable(GL_LIGHTING);
+	glColor3f(1.0f, 0.0f, 0.0f);
+	glPushMatrix();
+	if (position == playerPosition::left)
+		glTranslatef(-3.5f, 1.0f, 0.1f - playerDistance);
+	else
+		glTranslatef(3.5f, 1.0f, 0.1f - playerDistance);
+	glRasterPos2f(-0.3f, 0.0f);
+	drawString("You");
+	glPopMatrix();
+}
 
 int main() {
 
@@ -186,7 +218,7 @@ int main() {
 	glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, lightSpecular);
-	//glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
+	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
 	glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
 	glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
 	glEnable(GL_LIGHT0);
@@ -212,12 +244,14 @@ int main() {
 		glClearColor(0.0, 0.0, 0.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
+
 		glPushMatrix();
 		glMultMatrixf(camera.getMat());
 		skybox.draw(0, 0, 0, 40, 40, 100);
 		drawRoad(road.texture);
 		drawTrees(tree);
-		drawModel(player);
+		drawPlayer(player);
+		displayText();
 		glPopMatrix();
 		
 		glfwSwapBuffers(window);

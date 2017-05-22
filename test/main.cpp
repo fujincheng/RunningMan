@@ -14,12 +14,10 @@
 #include "camera.h"
 #include "skybox.h"
 
-enum playerPosition {left, right};
-playerPosition position = playerPosition::left;
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 const GLuint WIDTH = 500, HEIGHT = 500;
 bool keys[1024];
-float playerDistance = 0.0f;
+float playerOffsetZ = 0.0f, playerOffsetX = 0.0f;
 Camera camera;
 const int MAX_CHAR = 128;
 
@@ -30,67 +28,12 @@ void drawString(const char* str) {
 	if (isFirstCall) {
 		isFirstCall = false;
 		lists = glGenLists(MAX_CHAR);
-		// 把每个字符的绘制命令都装到对应的显示列表中
 		wglUseFontBitmaps(wglGetCurrentDC(), 0, MAX_CHAR, lists);
 	}
 
 	int len = strlen(str);
 	for (int i = 0; i < len; ++i)
 		glCallList(lists + str[i]);
-}
-
-const double vertexs[9][3] = {
-	{ 0, 0, 0 },
-	{ -1, 1, 1 },
-	{ -1, -1, 1 },
-	{ 1, 1, 1 },
-	{ 1, -1, 1 },
-	{ -1, 1, -1 },
-	{ -1, -1, -1 },
-	{ 1, 1, -1 },
-	{ 1, -1, -1 },
-};
-
-void drawACube() {
-	glBegin(GL_QUADS);
-
-	glColor3d(0, 0, 1);
-	glVertex3dv(vertexs[1]);
-	glVertex3dv(vertexs[2]);
-	glVertex3dv(vertexs[4]);
-	glVertex3dv(vertexs[3]);
-
-	glColor3d(0, 1, 0);
-	glVertex3dv(vertexs[3]);
-	glVertex3dv(vertexs[4]);
-	glVertex3dv(vertexs[8]);
-	glVertex3dv(vertexs[7]);
-
-	glColor3d(0, 1, 1);
-	glVertex3dv(vertexs[7]);
-	glVertex3dv(vertexs[8]);
-	glVertex3dv(vertexs[6]);
-	glVertex3dv(vertexs[5]);
-
-	glColor3d(1, 0, 0);
-	glVertex3dv(vertexs[5]);
-	glVertex3dv(vertexs[6]);
-	glVertex3dv(vertexs[2]);
-	glVertex3dv(vertexs[1]);
-
-	glColor3d(1, 0, 1);
-	glVertex3dv(vertexs[5]);
-	glVertex3dv(vertexs[1]);
-	glVertex3dv(vertexs[3]);
-	glVertex3dv(vertexs[7]);
-
-	glColor3d(1, 1, 0);
-	glVertex3dv(vertexs[6]);
-	glVertex3dv(vertexs[2]);
-	glVertex3dv(vertexs[4]);
-	glVertex3dv(vertexs[8]);
-
-	glEnd();
 }
 
 void do_movement() {
@@ -106,18 +49,14 @@ void do_movement() {
 		camera.moveForward(Camera::cameraSpeed);
 	if (keys[GLFW_KEY_E])
 		camera.moveBackward(Camera::cameraSpeed);
-	if (keys[GLFW_KEY_J]) {
-		position = playerPosition::left;
-		camera.moveXTo(-3.5f);
-	}
-	if (keys[GLFW_KEY_K]) {
-		position = playerPosition::right;
-		camera.moveXTo(3.5f);
-	}
-	if (keys[GLFW_KEY_U])
-		playerDistance -= Camera::cameraSpeed;
+	if (keys[GLFW_KEY_J])
+		playerOffsetX -= Camera::cameraSpeed;
+	if (keys[GLFW_KEY_L])
+		playerOffsetX += Camera::cameraSpeed;
 	if (keys[GLFW_KEY_I])
-		playerDistance += Camera::cameraSpeed;
+		playerOffsetZ += Camera::cameraSpeed;
+	if (keys[GLFW_KEY_K])
+		playerOffsetZ -= Camera::cameraSpeed;
 }
 
 void drawRoad(GLuint texture) {	
@@ -142,7 +81,7 @@ void drawRoad(GLuint texture) {
 void drawTrees(Model tree) {
 	glEnable(GL_LIGHTING);
 	glPushMatrix();
-	glTranslatef(-5.0f, 0.8f, 3.0f);
+	glTranslatef(-7.0f, -0.4f, 0.0f);
 	for (int i = 0; i < 7; ++i) {
 		glPushMatrix();
 		glScalef(0.05, 0.05, 0.05);
@@ -153,9 +92,10 @@ void drawTrees(Model tree) {
 	glPopMatrix();
 
 	glPushMatrix();
-	glTranslatef(8.0f, 0.8f, 3.0f);
+	glTranslatef(7.0f, -0.4f, 0.0f);
 	for (int i = 0; i < 7; ++i) {
 		glPushMatrix();
+		glRotatef(180, 0, 1, 0);
 		glScalef(0.05, 0.05, 0.05);
 		tree.draw();
 		glPopMatrix();
@@ -168,11 +108,8 @@ void drawTrees(Model tree) {
 void drawPlayer(Model model) {
 	glEnable(GL_LIGHTING);
 	glPushMatrix();
-	if (position == playerPosition::left) 
-		glTranslatef(-3.5f, -0.2f, 0.1f - playerDistance);
-	else
-		glTranslatef(3.5f, -0.2f, 0.1f - playerDistance);
-	glScalef(0.1f, 0.1f, 0.1f);
+	glTranslatef(playerOffsetX, -1.0f, -playerOffsetZ);
+	glScalef(0.05f, 0.05f, 0.05f);
 	model.draw();
 	glPopMatrix();
 }
@@ -181,11 +118,8 @@ void displayText() {
 	glDisable(GL_LIGHTING);
 	glColor3f(1.0f, 0.0f, 0.0f);
 	glPushMatrix();
-	if (position == playerPosition::left)
-		glTranslatef(-3.5f, 1.0f, 0.1f - playerDistance);
-	else
-		glTranslatef(3.5f, 1.0f, 0.1f - playerDistance);
-	glRasterPos2f(-0.3f, 0.0f);
+	glTranslatef(playerOffsetX, 0.0f, -playerOffsetZ);
+	glRasterPos2f(-0.4f, 1.0f);
 	drawString("You");
 	glPopMatrix();
 }
@@ -229,14 +163,13 @@ int main() {
 
 	
 	Texture road("imgs/road.jpg");
-	Model player("models/player.obj");
+	Model player("models/piggy.obj");
 	Model tree("models/tree.obj");
 	Skybox skybox;
 	
 	gluPerspective(75, GLfloat(WIDTH) / HEIGHT, 1, 128);
 	camera.moveUp(5.0f);
-	camera.moveLeft(3.5f);
-	camera.moveBackward(8.5f);
+	camera.moveBackward(9.0f);
 	
 	while (!glfwWindowShouldClose(window)) {	
 		do_movement();

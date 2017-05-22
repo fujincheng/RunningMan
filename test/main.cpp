@@ -17,7 +17,7 @@
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 const GLuint WIDTH = 500, HEIGHT = 500;
 bool keys[1024];
-float playerOffsetZ = 0.0f, playerOffsetX = 0.0f;
+float playerOffsetZ = 0.0f, playerOffsetX = 0.0f, playerRotated = 0.0f;
 Camera camera;
 const int MAX_CHAR = 128;
 
@@ -57,6 +57,10 @@ void do_movement() {
 		playerOffsetZ += Camera::cameraSpeed;
 	if (keys[GLFW_KEY_K])
 		playerOffsetZ -= Camera::cameraSpeed;
+	if (keys[GLFW_KEY_U])
+		playerRotated -= 5.0f;
+	if (keys[GLFW_KEY_O])
+		playerRotated += 5.0f;
 }
 
 void drawRoad(GLuint texture) {	
@@ -109,6 +113,7 @@ void drawPlayer(Model model) {
 	glEnable(GL_LIGHTING);
 	glPushMatrix();
 	glTranslatef(playerOffsetX, -1.0f, -playerOffsetZ);
+	glRotatef(playerRotated, 0, 1, 0);
 	glScalef(0.05f, 0.05f, 0.05f);
 	model.draw();
 	glPopMatrix();

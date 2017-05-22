@@ -108,33 +108,38 @@ void drawRoad(GLuint texture) {
 	glRotatef(90, 1, 0, 0);
 	glBegin(GL_QUADS);
 	glTexCoord2d(0.0, 0.0);
-	glVertex2d(-7, -20);
+	glVertex2d(-7, -30);
 	glTexCoord2d(7.0, 0.0);
-	glVertex2d(7, -20);
-	glTexCoord2d(7.0, 20.0);
+	glVertex2d(7, -30);
+	glTexCoord2d(7.0, 30.0);
 	glVertex2d(7, 0);
-	glTexCoord2d(0.0, 20.0);
+	glTexCoord2d(0.0, 30.0);
 	glVertex2d(-7, 0);
 	glEnd();
 	glPopMatrix();
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void drawCubes() {
-	glDisable(GL_LIGHTING);
+void drawTrees(Model tree) {
 	glPushMatrix();
-	glTranslatef(-8, 0, 0);
-	for (int i = 0; i < 5; ++i) {
-		drawACube();
-		glTranslatef(0, 0, -3);
+	glTranslatef(-5, 0.8, 3);
+	for (int i = 0; i < 7; ++i) {
+		glPushMatrix();
+		glScalef(0.05, 0.05, 0.05);
+		tree.draw();
+		glPopMatrix();
+		glTranslatef(0, 0, -4);
 	}
 	glPopMatrix();
 
 	glPushMatrix();
-	glTranslatef(8, 0, 0);
-	for (int i = 0; i < 5; ++i) {
-		drawACube();
-		glTranslatef(0, 0, -3);
+	glTranslatef(8, 0.8, 3);
+	for (int i = 0; i < 7; ++i) {
+		glPushMatrix();
+		glScalef(0.05, 0.05, 0.05);
+		tree.draw();
+		glPopMatrix();
+		glTranslatef(0, 0, -4);
 	}
 	glPopMatrix();
 }
@@ -176,12 +181,14 @@ int main() {
 
 	GLfloat lightAmbient[] = { 1.0, 1.0, 1.0, 1.0 };
 	GLfloat lightDiffuse[] = { 1.0, 1.0, 1.0, 1.0 };
-	GLfloat lightPosition[] = { 0.0, 1.0, 0.0, 0.0 };
+	GLfloat lightPosition[] = { 0.0, 50.0, 0.0, 0.0 };
 	GLfloat lightSpecular[] = { 1.0, 1.0, 1.0, 1.0 };
 	glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, lightSpecular);
-	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
+	//glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
+	glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
+	glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
 	glEnable(GL_LIGHT0);
 	glEnable(GL_DEPTH_TEST);
 	glShadeModel(GL_SMOOTH);
@@ -190,7 +197,8 @@ int main() {
 
 	
 	Texture road("imgs/road.jpg");
-	Model gun("models/X1.obj");
+	Model player("models/player.obj");
+	Model tree("models/tree.obj");
 	Skybox skybox;
 	
 	gluPerspective(75, GLfloat(WIDTH) / HEIGHT, 1, 128);
@@ -208,15 +216,15 @@ int main() {
 		glMultMatrixf(camera.getMat());
 		skybox.draw(0, 0, 0, 40, 40, 100);
 		drawRoad(road.texture);
-		drawCubes();
-		drawModel(gun);
+		drawTrees(tree);
+		drawModel(player);
 		glPopMatrix();
 		
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 
-	gun.destroy();
+	player.destroy();
 	glfwTerminate();
 	return 0;
 }

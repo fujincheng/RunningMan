@@ -24,7 +24,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 const GLuint WIDTH = 500, HEIGHT = 500;
 bool keys[1024];
-float playerOffsetZ = 0.0f, playerOffsetX = 0.0f, playerRotated = 0.0f;
+float playerOffsetZ = 1.0f, playerOffsetX = 0.0f, playerRotated = 180.0f;
 Camera camera;
 const int MAX_CHAR = 128;
 GLuint drawRoadList;
@@ -53,8 +53,8 @@ int main() {
 	initGL();
 	
 	Texture road("imgs/road.jpg");
-	Model player("models/piggy.obj");
-	Model tree("models/tree.obj");
+	Model player("models/pig/pig.obj");
+	Model tree("models/Palm_Tree/palm_Tree.obj");
 	Skybox skybox;
 	
 	gluPerspective(75, GLfloat(WIDTH) / HEIGHT, 1, 128);
@@ -69,7 +69,7 @@ int main() {
 		
 		glPushMatrix();
 		glMultMatrixf(camera.getMat());
-		skybox.draw(0, 0, 0, 40, 40, 100);
+		skybox.draw(0, 0, 0, 50, 50, 100);
 		drawRoad(road);
 		drawTrees(tree);
 		drawPlayer(player);
@@ -88,7 +88,7 @@ int main() {
 void initGL() {
 	GLfloat lightAmbient[] = { 1.0, 1.0, 1.0, 1.0 };
 	GLfloat lightDiffuse[] = { 1.0, 1.0, 1.0, 1.0 };
-	GLfloat lightPosition[] = { 0.0, 50.0, 0.0, 0.0 };
+	GLfloat lightPosition[] = { 0.0, 0.0, 0.0, 0.0 };
 	GLfloat lightSpecular[] = { 1.0, 1.0, 1.0, 1.0 };
 	glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
@@ -147,6 +147,7 @@ void drawString(const char* str) {
 void drawRoad(Texture & road) {
 	static bool isFirstCall = true;
 	GLuint texture = road.texture;
+	glEnable(GL_LIGHTING);
 	if (isFirstCall) {
 		isFirstCall = false;
 		drawRoadList = glGenLists(1);
@@ -175,23 +176,21 @@ void drawRoad(Texture & road) {
 void drawTrees(Model & tree) {
 	glEnable(GL_LIGHTING);
 	glPushMatrix();
-	glTranslatef(-7.0f, -0.4f, 0.0f);
+	glTranslatef(-6.5f, -1.0f, 0.0f);
 	for (int i = 0; i < 7; ++i) {
 		glPushMatrix();
-		glScalef(0.05, 0.05, 0.05);
-		tree.draw();
+		tree.draw(3);
 		glPopMatrix();
 		glTranslatef(0, 0, -4.0f);
 	}
 	glPopMatrix();
 
 	glPushMatrix();
-	glTranslatef(7.0f, -0.4f, 0.0f);
+	glTranslatef(6.5f, -1.0f, 0.0f);
 	for (int i = 0; i < 7; ++i) {
 		glPushMatrix();
 		glRotatef(180, 0, 1, 0);
-		glScalef(0.05, 0.05, 0.05);
-		tree.draw();
+		tree.draw(3);
 		glPopMatrix();
 		glTranslatef(0, 0, -4.0f);
 	}
@@ -203,8 +202,7 @@ void drawPlayer(Model & model) {
 	glPushMatrix();
 	glTranslatef(playerOffsetX, -1.0f, -playerOffsetZ);
 	glRotatef(playerRotated, 0, 1, 0);
-	glScalef(0.05f, 0.05f, 0.05f);
-	model.draw();
+	model.draw(1.8f);
 	glPopMatrix();
 }
 
